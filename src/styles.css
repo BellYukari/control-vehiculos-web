@@ -93,6 +93,7 @@ body {
   }
 }
 
+/* Estilos para el diseño de Vehículos */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -294,5 +295,183 @@ td {
   .table-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+
+/* Estilos para el diseño de movimientos */
+.movement-layout {
+  display: grid;
+  grid-template-columns: minmax(320px, 720px) 1fr;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.movement-form {
+  width: 100%;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.info-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.info-card {
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.info-card i {
+  font-size: 2rem;
+  color: #2563eb;
+  margin-bottom: 0.75rem;
+}
+
+.info-card h3 {
+  margin: 0 0 0.5rem;
+  color: #0f172a;
+}
+
+.info-card p {
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.info-card strong {
+  display: inline-flex;
+  font-size: 2rem;
+  margin-top: 0.25rem;
+  color: #1d4ed8;
+}
+
+@media (max-width: 950px) {
+  .movement-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.filter-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.mt-1 {
+  margin-top: 1rem;
+}
+
+.table-subtitle {
+  margin: -0.5rem 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.muted-text {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.movement-badge {
+  display: inline-flex;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.movement-entry {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.movement-exit {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+@media (max-width: 900px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Estilos para el diseño de  consultar movimientos  */
+
+.filter-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  align-items: end;
+}
+
+.mt-1 {
+  margin-top: 1rem;
+}
+
+.table-subtitle {
+  margin: -0.5rem 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.muted-text {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.movement-badge {
+  display: inline-flex;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.movement-entry {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.movement-exit {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+@media (max-width: 900px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
   }
 }
