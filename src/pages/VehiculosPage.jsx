@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
-import { obtenerVehiculos, crearVehiculo, actualizarVehiculo, eliminarVehiculo } from "../api/vehiculosApi";
+import ConfirmModal from "../components/ConfirmModal";
+import { validarVehiculo } from "../utils/validaciones";
+import {
+  obtenerVehiculos,
+  crearVehiculo,
+  actualizarVehiculo,
+  eliminarVehiculo,
+} from "../api/vehiculosApi";
 
-function VehiculosPage () {
+function VehiculosPage() {
   const estadoInicial = {
     marca: "",
     modelo: "",
@@ -12,9 +19,12 @@ function VehiculosPage () {
   const [vehiculos, setVehiculos] = useState([]);
   const [formulario, setFormulario] = useState(estadoInicial);
   const [vehiculoEditando, setVehiculoEditando] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState("");
   const [error, setError] = useState("");
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [vehiculoAEliminar, setVehiculoAEliminar] = useState(null);
 
   const cargarVehiculos = async () => {
     try {
@@ -38,6 +48,36 @@ function VehiculosPage () {
     cargarVehiculos();
   }, []);
 
+  const abrirModalNuevo = () => {
+    setFormulario(estadoInicial);
+    setVehiculoEditando(null);
+    setMensaje("");
+    setError("");
+    setModalVisible(true);
+  };
+
+  const abrirModalEditar = (vehiculo) => {
+    setVehiculoEditando(vehiculo);
+
+    setFormulario({
+      marca: vehiculo.marca || "",
+      modelo: vehiculo.modelo || "",
+      placa: vehiculo.placa || "",
+      estado: vehiculo.estado ?? 1,
+    });
+
+    setMensaje("");
+    setError("");
+    setModalVisible(true);
+  };
+
+  const cerrarModal = () => {
+    setModalVisible(false);
+    setFormulario(estadoInicial);
+    setVehiculoEditando(null);
+    setError("");
+  };
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -48,34 +88,14 @@ function VehiculosPage () {
   };
 
   const validarFormulario = () => {
-    if (!formulario.marca.trim()) {
-      setError("La marca es obligatoria.");
-      return false;
-    }
+    const mensajeValidacion = validarVehiculo(formulario);
 
-    if (!formulario.modelo.trim()) {
-      setError("El modelo es obligatorio.");
-      return false;
-    }
-
-    if (!formulario.placa.trim()) {
-      setError("La placa es obligatoria.");
-      return false;
-    }
-
-    if (formulario.placa.trim().length < 5) {
-      setError("La placa debe tener al menos 5 caracteres.");
+    if (mensajeValidacion) {
+      setError(mensajeValidacion);
       return false;
     }
 
     return true;
-  };
-
-  const limpiarFormulario = () => {
-    setFormulario(estadoInicial);
-    setVehiculoEditando(null);
-    setError("");
-    setMensaje("");
   };
 
   const guardarVehiculo = async (event) => {
@@ -92,9 +112,9 @@ function VehiculosPage () {
       setLoading(true);
 
       const datosVehiculo = {
-        marca: formulario.marca,
-        modelo: formulario.modelo,
-        placa: formulario.placa,
+        marca: formulario.marca.trim(),
+        modelo: formulario.modelo.trim(),
+        placa: formulario.placa.trim().toUpperCase(),
         estado: Number(formulario.estado),
       };
 
@@ -108,7 +128,7 @@ function VehiculosPage () {
 
       if (response.success) {
         setMensaje(response.message);
-        limpiarFormulario();
+        cerrarModal();
         await cargarVehiculos();
       }
     } catch (error) {
@@ -119,211 +139,240 @@ function VehiculosPage () {
     }
   };
 
-  const seleccionarVehiculo = (vehiculo) => {
-    setVehiculoEditando(vehiculo);
-
-    setFormulario({
-      marca: vehiculo.marca || "",
-      modelo: vehiculo.modelo || "",
-      placa: vehiculo.placa || "",
-      estado: vehiculo.estado ?? 1,
-    });
-
-    setMensaje("");
-    setError("");
+  const confirmarEliminar = (vehiculo) => {
+    setVehiculoAEliminar(vehiculo);
+    setConfirmVisible(true);
   };
 
-  const confirmarEliminar = async (vehiculo) => {
-    const confirmar = window.confirm(
-      `¿Está seguro de eliminar el vehículo con placa ${vehiculo.placa}?`
-    );
-
-    if (!confirmar) {
-      return;
-    }
+  const eliminarVehiculoSeleccionado = async () => {
+    if (!vehiculoAEliminar) return;
 
     try {
       setLoading(true);
       setMensaje("");
       setError("");
 
-      const response = await eliminarVehiculo(vehiculo.id);
+      const response = await eliminarVehiculo(vehiculoAEliminar.id);
 
       if (response.success) {
         setMensaje(response.message);
         await cargarVehiculos();
-
-        if (vehiculoEditando?.id === vehiculo.id) {
-          limpiarFormulario();
-        }
       }
     } catch (error) {
       console.error("Error al eliminar vehículo:", error);
       setError(error.response?.data?.message || "Error al eliminar el vehículo.");
     } finally {
       setLoading(false);
+      setConfirmVisible(false);
+      setVehiculoAEliminar(null);
     }
   };
 
   return (
-    <section className="page-card">
-      <div className="page-header">
-        <div>
-          <h1>Registro de Vehículos</h1>
-          <p>Administre los vehículos registrados en el sistema.</p>
+    <section className="module-page">
+      <div className="module-toolbar">
+        <h1>Vehículos</h1>
+
+        <div className="toolbar-actions">
+          <button
+            type="button"
+            className="square-btn square-btn-refresh"
+            onClick={cargarVehiculos}
+            disabled={loading}
+            title="Refrescar"
+          >
+            <i className="pi pi-refresh"></i>
+          </button>
+
+          <button
+            type="button"
+            className="square-btn square-btn-add"
+            onClick={abrirModalNuevo}
+            title="Agregar vehículo"
+          >
+            <i className="pi pi-plus"></i>
+          </button>
         </div>
       </div>
 
       {mensaje && <div className="alert alert-success">{mensaje}</div>}
-      {error && <div className="alert alert-error">{error}</div>}
+      {error && !modalVisible && <div className="alert alert-error">{error}</div>}
 
-      <div className="content-grid">
-        <form className="form-card" onSubmit={guardarVehiculo}>
-          <h2>{vehiculoEditando ? "Editar vehículo" : "Nuevo vehículo"}</h2>
+      <div className="system-table-card">
+        {loading ? (
+          <p>Cargando información...</p>
+        ) : vehiculos.length === 0 ? (
+          <p>No hay vehículos registrados.</p>
+        ) : (
+          <div className="responsive-table system-table-wrapper">
+            <table className="system-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Placa</th>
+                  <th>Estado</th>
+                  <th>Fecha creación</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
 
-          <div className="form-group">
-            <label>Marca</label>
-            <input
-              type="text"
-              name="marca"
-              value={formulario.marca}
-              onChange={handleChange}
-              placeholder="Ejemplo: Toyota"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Modelo</label>
-            <input
-              type="text"
-              name="modelo"
-              value={formulario.modelo}
-              onChange={handleChange}
-              placeholder="Ejemplo: Hilux"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Placa</label>
-            <input
-              type="text"
-              name="placa"
-              value={formulario.placa}
-              onChange={handleChange}
-              placeholder="Ejemplo: HAA1234"
-            />
-          </div>
-
-          {vehiculoEditando && (
-            <div className="form-group">
-              <label>Estado</label>
-              <select
-                name="estado"
-                value={formulario.estado}
-                onChange={handleChange}
-              >
-                <option value={1}>Activo</option>
-                <option value={0}>Inactivo</option>
-              </select>
-            </div>
-          )}
-
-          <div className="form-actions">
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {vehiculoEditando ? "Actualizar" : "Guardar"}
-            </button>
-
-            {vehiculoEditando && (
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={limpiarFormulario}
-                disabled={loading}
-              >
-                Cancelar
-              </button>
-            )}
-          </div>
-        </form>
-
-        <div className="table-card">
-          <div className="table-header">
-            <h2>Listado de vehículos</h2>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={cargarVehiculos}
-              disabled={loading}
-            >
-              Refrescar
-            </button>
-          </div>
-
-          {loading ? (
-            <p>Cargando información...</p>
-          ) : vehiculos.length === 0 ? (
-            <p>No hay vehículos registrados.</p>
-          ) : (
-            <div className="responsive-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Marca</th>
-                    <th>Modelo</th>
-                    <th>Placa</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {vehiculos.map((vehiculo) => (
-                    <tr key={vehiculo.id}>
-                      <td>{vehiculo.id}</td>
-                      <td>{vehiculo.marca}</td>
-                      <td>{vehiculo.modelo}</td>
-                      <td>
-                        <strong>{vehiculo.placa}</strong>
-                      </td>
-                      <td>
-                        <span
-                          className={
-                            vehiculo.estado === 1
-                              ? "status status-active"
-                              : "status status-inactive"
-                          }
+              <tbody>
+                {vehiculos.map((vehiculo) => (
+                  <tr key={vehiculo.id}>
+                    <td>{vehiculo.id}</td>
+                    <td>{vehiculo.marca}</td>
+                    <td>{vehiculo.modelo}</td>
+                    <td>
+                      <strong>{vehiculo.placa}</strong>
+                    </td>
+                    <td>
+                      <span
+                        className={
+                          Number(vehiculo.estado) === 1
+                            ? "grid-status grid-status-active"
+                            : "grid-status grid-status-inactive"
+                        }
+                      >
+                        {vehiculo.estado_nombre}
+                      </span>
+                    </td>
+                    <td>
+                      {vehiculo.fecha_creacion
+                        ? new Date(vehiculo.fecha_creacion).toLocaleDateString(
+                            "es-HN"
+                          )
+                        : ""}
+                    </td>
+                    <td>
+                      <div className="row-actions">
+                        <button
+                          type="button"
+                          className="icon-btn edit-icon"
+                          onClick={() => abrirModalEditar(vehiculo)}
+                          title="Editar"
                         >
-                          {vehiculo.estado_nombre}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="table-actions">
-                          <button
-                            type="button"
-                            className="btn btn-small btn-edit"
-                            onClick={() => seleccionarVehiculo(vehiculo)}
-                          >
-                            Editar
-                          </button>
+                          <i className="pi pi-pencil"></i>
+                        </button>
 
-                          <button
-                            type="button"
-                            className="btn btn-small btn-delete"
-                            onClick={() => confirmarEliminar(vehiculo)}
-                          >
-                            Eliminar
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                        <button
+                          type="button"
+                          className="icon-btn delete-icon"
+                          onClick={() => confirmarEliminar(vehiculo)}
+                          title="Eliminar"
+                        >
+                          <i className="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {modalVisible && (
+        <div className="modal-backdrop">
+          <div className="system-modal">
+            <button type="button" className="modal-close" onClick={cerrarModal}>
+              <i className="pi pi-times"></i>
+            </button>
+
+            <h2>{vehiculoEditando ? "Editar Vehículo" : "Agregar Vehículo"}</h2>
+
+            {error && <div className="alert alert-error">{error}</div>}
+
+            <form onSubmit={guardarVehiculo}>
+              <div className="modal-grid">
+                <div className="form-group">
+                  <label>Marca</label>
+                  <input
+                    type="text"
+                    name="marca"
+                    value={formulario.marca}
+                    onChange={handleChange}
+                    placeholder="Marca"
+                    maxLength={50}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Modelo</label>
+                  <input
+                    type="text"
+                    name="modelo"
+                    value={formulario.modelo}
+                    onChange={handleChange}
+                    placeholder="Modelo"
+                    maxLength={50}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Placa</label>
+                  <input
+                    type="text"
+                    name="placa"
+                    value={formulario.placa}
+                    onChange={handleChange}
+                    placeholder="Placa"
+                    maxLength={10}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Estado</label>
+                  <select
+                    name="estado"
+                    value={formulario.estado}
+                    onChange={handleChange}
+                  >
+                    <option value={1}>Activo</option>
+                    <option value={0}>Inactivo</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="text-btn"
+                  onClick={cerrarModal}
+                  disabled={loading}
+                >
+                  <i className="pi pi-times"></i>
+                  Cancelar
+                </button>
+
+                <button type="submit" className="text-btn save-text-btn" disabled={loading}>
+                  <i className="pi pi-check"></i>
+                  Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      <ConfirmModal
+        visible={confirmVisible}
+        title="Eliminar vehículo"
+        message={
+          vehiculoAEliminar
+            ? `¿Está seguro de eliminar el vehículo con placa ${vehiculoAEliminar.placa}?`
+            : "¿Está seguro de eliminar este vehículo?"
+        }
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        loading={loading}
+        onCancel={() => {
+          setConfirmVisible(false);
+          setVehiculoAEliminar(null);
+        }}
+        onConfirm={eliminarVehiculoSeleccionado}
+      />
     </section>
   );
 }

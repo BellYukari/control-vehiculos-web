@@ -1,0 +1,255 @@
+# Control de Vehículos - Frontend
+
+Aplicación web desarrollada con **React.js** para la gestión de vehículos y movimientos de entrada/salida.
+
+Este frontend consume una API REST desarrollada con Node.js, Express y MySQL. Permite registrar vehículos, administrar movimientos, consultar información mediante filtros avanzados, exportar datos a CSV y visualizar un dashboard de resumen.
+
+---
+
+## Tecnologías utilizadas
+
+* React.js
+* Vite
+* React Router DOM
+* Axios
+* PrimeIcons
+* CSS personalizado
+* LocalStorage para guardar el tema claro/oscuro
+
+---
+
+## Funcionalidades principales
+
+* Dashboard inicial con resumen del sistema.
+* Gestión de vehículos.
+* Registro de entradas y salidas.
+* Edición de movimientos.
+* Consulta avanzada de movimientos.
+* Filtro por rango de fechas.
+* Filtro por vehículo.
+* Filtro por motorista.
+* Filtro por tipo de movimiento.
+* Exportación de movimientos a CSV.
+* Modo claro y modo oscuro.
+* Modales personalizados para crear, editar y confirmar eliminación.
+* Validaciones de formularios en el frontend.
+
+---
+
+## Requisitos previos
+
+Antes de ejecutar el proyecto se necesita tener instalado:
+
+* Node.js
+* npm
+* Git
+
+También se debe tener la API ejecutándose correctamente.
+
+Por defecto, la API debe estar disponible en:
+
+```txt
+http://localhost:3001/api
+```
+
+---
+
+## Instalación del proyecto
+
+Clonar el repositorio:
+
+```bash
+git clone URL_DEL_REPOSITORIO_FRONTEND
+```
+
+Entrar a la carpeta del proyecto:
+
+```bash
+cd control-vehiculos-web
+```
+
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+---
+
+## Configuración de variables de entorno
+
+Crear un archivo `.env` en la raíz del proyecto tomando como base el archivo `.env.example`.
+
+Ejemplo:
+
+```env
+VITE_API_URL=http://localhost:3001/api
+```
+
+Esta variable indica la URL base de la API que consume el frontend.
+
+---
+
+## Ejecutar el proyecto
+
+Modo desarrollo:
+
+```bash
+npm run dev
+```
+
+Por defecto, Vite ejecuta la aplicación en:
+
+```txt
+http://localhost:5173
+```
+
+---
+
+## Rutas principales
+
+```txt
+/dashboard
+```
+
+Pantalla inicial con resumen del sistema.
+
+```txt
+/vehiculos
+```
+
+Pantalla para registrar, editar, listar y eliminar vehículos.
+
+```txt
+/movimientos
+```
+
+Pantalla para registrar entradas y salidas, editar movimientos y eliminarlos.
+
+```txt
+/consulta
+```
+
+Pantalla para consultar movimientos con filtros avanzados y exportar datos a CSV.
+
+---
+
+## Estructura principal del proyecto
+
+```txt
+control-vehiculos-web/
+├── public/
+├── src/
+│   ├── api/
+│   │   ├── axiosConfig.js
+│   │   ├── vehiculosApi.js
+│   │   └── movimientosApi.js
+│   ├── components/
+│   │   ├── Navbar.jsx
+│   │   └── ConfirmModal.jsx
+│   ├── pages/
+│   │   ├── DashboardPage.jsx
+│   │   ├── VehiculosPage.jsx
+│   │   ├── MovimientosPage.jsx
+│   │   └── ConsultaMovimientosPage.jsx
+│   ├── utils/
+│   │   └── validaciones.js
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── styles.css
+├── .env.example
+├── package.json
+└── README.md
+```
+
+---
+
+## Configuración de Axios
+
+El frontend utiliza Axios para comunicarse con la API.
+
+Archivo principal:
+
+```txt
+src/api/axiosConfig.js
+```
+
+La URL base se obtiene desde:
+
+```env
+VITE_API_URL
+```
+
+Ejemplo local:
+
+```env
+VITE_API_URL=http://localhost:3001/api
+```
+
+---
+
+## Validaciones principales
+
+El frontend valida:
+
+* Campos obligatorios.
+* Longitud mínima y máxima.
+* Formato de placa.
+* Formato del nombre del motorista.
+* Fecha no pasada.
+* Kilometraje numérico.
+* Kilometraje no negativo.
+* Observaciones con máximo de caracteres.
+* Tipo de movimiento permitido.
+
+Estas validaciones ayudan al usuario antes de enviar la información a la API.
+
+---
+
+## Modo claro y modo oscuro
+
+La aplicación permite cambiar entre modo claro y oscuro.
+
+El tema seleccionado se guarda en `localStorage`, por lo que se mantiene aunque el usuario recargue la página.
+
+---
+
+## Exportación CSV
+
+La pantalla de consulta permite exportar los movimientos cargados en la tabla a un archivo `.csv`.
+
+Si se aplican filtros, el archivo exportado contiene únicamente los resultados filtrados.
+
+---
+
+## Comandos disponibles
+
+Instalar dependencias:
+
+```bash
+npm install
+```
+
+Ejecutar en desarrollo:
+
+```bash
+npm run dev
+```
+
+Generar versión de producción:
+
+```bash
+npm run build
+```
+
+Previsualizar build:
+
+```bash
+npm run preview
+```
+
+---
+
+## Autor
+
+Desarrollado como parte de una prueba técnica para desarrollador web.
