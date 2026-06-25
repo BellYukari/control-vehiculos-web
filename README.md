@@ -54,8 +54,26 @@ http://localhost:3001/api
 ```
 ## Autor
 * Owen Javier Orellana Hernandez
-* 
+  
 Desarrollado como parte de una prueba técnica para desarrollador web.
+
+## Enlaces del proyecto
+
+Frontend desplegado:
+
+https://control-vehiculos-web.vercel.app
+
+API desplegada:
+
+https://control-vehiculos-api-production.up.railway.app
+
+Repositorio frontend:
+
+https://github.com/BellYukari/control-vehiculos-web
+
+Repositorio backend:
+
+https://github.com/BellYukari/control-vehiculos-api
 
 # React + Vite
 
