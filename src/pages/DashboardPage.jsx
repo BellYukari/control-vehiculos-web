@@ -73,7 +73,7 @@ function DashboardPage() {
   return (
     <section className="module-page">
       <div className="module-toolbar">
-        <h1><Img:sizes></Img:sizes>nicio</h1>
+        <h1>Inicio</h1>
 
         <div className="toolbar-actions">
           <button
